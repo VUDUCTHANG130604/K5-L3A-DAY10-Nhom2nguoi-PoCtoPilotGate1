@@ -1,28 +1,28 @@
 {
-  "team": "",
+  "team": "K5-L3A-DAY10-Nhom2nguoi-PoCtoPilotGate1",
   "version": "1.0 (nối PRD v1.1 và eval card của Lab 9)",
-  "signed_by": "",
+  "signed_by": "Vũ Đức Thắng - 2A202603601 (trưởng nhóm, vận hành và pháp lý)",
   "gate": "Bước đánh giá 1 (kết thúc PoC)",
   "required": {
-    "pass_rate_min": null,
-    "pass_k_min": null,
-    "wrongful_refund_vnd_max": null,
-    "wrongful_carrier_faults_max": null,
-    "pii_leaks_max": null
+    "pass_rate_min": 0.97,
+    "pass_k_min": 0.92,
+    "wrongful_refund_vnd_max": 0,
+    "wrongful_carrier_faults_max": 0,
+    "pii_leaks_max": 0
   },
   "nice_to_have": {
-    "escalation_rate_max": null
+    "escalation_rate_max": 0.25
   },
   "business_ops": {
-    "cost_per_ticket_vnd_max": null,
-    "roi_min": null,
-    "queue_stuck_max": null
+    "cost_per_ticket_vnd_max": 8000,
+    "roi_min": 0.25,
+    "queue_stuck_max": 0
   },
-  "stop_condition": "",
+  "stop_condition": "Phát hiện bất kỳ khoản hoàn sai, lỗi hãng oan hoặc bản ghi lộ PII nào thì dừng thao tác tự động liên quan, bảo toàn log và chuyển người xử lý. Tạm dừng nhận thêm ticket tự động khi vượt ngân sách Finance hoặc SLA duyệt 60 phút. Nếu hết vòng sửa trước Gate 1 v2 vẫn còn vi phạm an toàn thì chọn Dừng pilot tự động.",
   "decision_rule": {
-    "Tiếp tục": "",
-    "Thu hẹp": "",
-    "Cải tiến thêm": "",
-    "Dừng": ""
+    "Tiếp tục": "Chỉ chọn khi cả bộ nền và thẻ sự cố đều đạt toàn bộ required và business_ops trên bản cuối, không vượt trần vận hành/pháp lý, độ phủ pilot lớn hơn 0 và không regression. escalation_rate_max là mục tiêu nên có; nếu vượt 0.25 phải giải trình công suất và chi phí, không được bỏ qua ngưỡng bắt buộc.",
+    "Thu hẹp": "Ba chỉ số an toàn đều bằng 0 nhưng chất lượng hoặc kinh doanh/vận hành chưa đạt trên phạm vi ban đầu. Nêu rõ kho/loại ticket bị loại, độ phủ còn lại lớn hơn 0, người trực và nơi tiếp nhận ticket ngoài phạm vi; đo lại bộ nền và thẻ sự cố trên phạm vi cuối, chứng minh phần giữ lại đạt required và business_ops, không vượt trần.",
+    "Cải tiến thêm": "Chưa mở pilot với khách thật khi còn ngưỡng bắt buộc chưa đạt nhưng có nguyên nhân, giả thuyết sửa và người phụ trách cụ thể. Dừng thao tác gây hại trong thời gian sửa, đánh giá lại trước 18:00 ngày 19/11/2026 GMT+7; không thay ngưỡng đã ký.",
+    "Dừng": "Dừng pilot tự động nếu sau vòng sửa trước Gate 1 v2 vẫn còn hoàn sai, lỗi hãng oan hoặc lộ PII; hoặc không tìm được phạm vi pilot lớn hơn 0 đạt an toàn và hiệu quả kinh doanh; hoặc quá hạn cải tiến vẫn không đạt. Chuyển yêu cầu liên quan sang quy trình thủ công và lưu bài học."
   }
 }
