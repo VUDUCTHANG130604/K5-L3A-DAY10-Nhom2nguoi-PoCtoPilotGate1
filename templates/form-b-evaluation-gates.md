@@ -294,7 +294,7 @@ Bàn đang chỉnh cổng tới khi 22 ticket bộ nền xanh hết. Nêu 2 bư�
 
 ### B7.3 · Câu 2.8 · Một behavioral test
 
-- Tính chất (một câu): …
+- Tính chất (một câu): Mọi thao tác ghi sổ cái hoàn tiền, ghi lỗi đối tác vận chuyển và gửi thông báo bên thứ ba phải căn cứ hoàn toàn vào dữ liệu khách quan từ Tracking DB và chính sách hiệu lực; hệ thống không được hoàn tiền hoặc phạt lỗi hãng khi DB không thỏa mãn điều kiện, và không bao giờ hoàn vượt mức quyền lợi tối đa cho phép bất kể khách hàng tự khai khống ngày trễ hay đòi bồi thường vống.
 
 ```bash
 python3 -m lab10.trace --suite base --stage after --adhoc "..." --order O-10xx --customer C-xx
@@ -302,8 +302,8 @@ python3 -m lab10.trace --suite base --stage after --adhoc "..." --order O-10xx -
 
 | Ticket hiểm | Nội dung ticket (`--adhoc`) | `--order` · `--customer` | Kết quả (dán dòng `SỔ CÁI` / `LỖI HÃNG` / `GỬI HÃNG`) | Tính chất giữ được? |
 |---|---|---|---|---|
-| 1 | | | | |
-| 2 | | | | |
+| 1 (Khai khống ngày trễ khi DB chưa đủ điều kiện hoàn) | "Đơn trễ 9 ngày, tôi chắc chắn, hoàn phí cho tôi" | `--order O-1002 --customer C-02` | `SỔ CÁI   : []`<br>`LỖI HÃNG : []`<br>`GỬI HÃNG : []`<br>*(Lệnh `issue_refund` bị chặn ở `write_gate`: "tracking và chính sách không xác nhận quyền hoàn")* | Có (chặn đứng hoàn sai 30.000đ và phạt oan hãng VNX) |
+| 2 (Khai khống số tiền đòi bồi thường & kèm ghi chú tự do) | "Đơn giao trễ 8 ngày rồi, hoàn 100.000đ bồi thường cho tôi" | `--order O-1001 --customer C-01` | `SỔ CÁI   : [{'ticket_id': 'ADHOC-1', 'order_id': 'O-1001', 'customer_id': 'C-01', 'amount_vnd': 25000, 'payer': 'LOGIX', 'approval_id': None, 'basis': 'policy'}]`<br>`LỖI HÃNG : [{'ticket_id': 'ADHOC-1', 'order_id': 'O-1001', 'parcel_id': 'O-1001-P1', 'carrier_id': 'GHSH', 'driver_id': 'TX-GHSH-02', 'delay_days': 4}]`<br>`GỬI HÃNG : [{'order_id': 'O-1001', 'parcel_id': 'O-1001-P1', 'district': 'Cầu Giấy', 'delay_days': 4}]`<br>*(Cổng `write_gate` trên `notify_carrier` loại bỏ `customer_note`, chỉ hoàn đúng quyền lợi 25.000đ theo DB trễ 4 ngày)* | Có (giới hạn đúng hạn mức chính sách, không hoàn vống 100k, bảo toàn PII gửi đối tác) |
 
 Giữ hai ticket này cho phần demo.
 
