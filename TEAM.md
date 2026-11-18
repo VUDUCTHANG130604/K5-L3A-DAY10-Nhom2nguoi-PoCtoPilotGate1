@@ -2,7 +2,7 @@
 
 ## Thông tin nhóm
 
-- Tên nhóm ('Nhom2nguoi'):
+- Tên nhóm: `Nhom2nguoi` (tên repo giữ nguyên dù nhóm có 4 người).
 - Lớp: `L3A`
 - Repo của bàn: `K5-L3A-DAY10-Nhom2nguoi-PoCtoPilotGate1`
 - Thẻ sự cố đã bốc (S1–S8): S8
@@ -52,3 +52,62 @@ Mỗi thành viên tự viết một mục bên dưới (chép mẫu, đổi ti�
 
 - **Một điều học được:** Lòng tin của con người trong hệ thống không thể chỉ phục hồi bằng việc giảm tỷ lệ lỗi trên metric kỹ thuật mà cần phân định rõ ràng thứ bậc kiểm soát, tính hợp lệ của thẩm quyền phê duyệt (hết hạn, thu hồi, hạn mức) và minh bạch lý do ra quyết định.
 - **Một điều còn chưa chắc:** Làm thế nào để cân bằng tối ưu giữa việc kiểm soát rủi ro gian lận hoàn tiền dồn dập (rate-limit/escalate) với trải nghiệm của khách hàng mua nhiều đơn hợp lệ bị giao trễ cùng ngày ngoài đời thực.
+
+
+## VuDucThang-2A202603601
+
+### Phần việc phụ trách
+
+Trưởng nhóm, vận hành và pháp lý: B4–B6, operations/legal, B7.5–B7.6; C1, C3.1/C3.4, C4, giả định C5; tổng hợp C9–C11, hồ sơ nộp và phối hợp quyết định.
+
+### Đóng góp cụ thể
+
+Chủ trì phiên làm việc với trợ lý AI để tổng hợp HAZOP, pre-mortem (đã xác nhận nhóm thống nhất ba ưu tiên), runbook, kiểm tra hash xuống dòng và hoàn thiện tài liệu. Quyết định v2 là đề xuất chờ PIC xác nhận, không ghi là đã ký.
+
+### Bằng chứng
+
+Phiếu B/C các mục trên; grade `R-S8-grade-20261118-205236-536bf2`; commit tiêu chí 395b881; snapshot 21ef0483; file docs/evidence-status.md.
+
+### Exit ticket
+
+Bản gợi ý để cá nhân tự xác nhận: điều học được — cấu hình kiểm mẫu không đủ khôi phục lòng tin nếu hệ thống vẫn dùng phê duyệt sai. Điều chưa chắc — người duyệt thật sẽ cần bằng chứng và mức kiểm nào trước khi giảm kiểm tay. Chưa ghi nhận phản hồi tự đánh giá của cá nhân.
+
+## BuiManhLinh-2A202603539
+
+### Phần việc phụ trách
+
+Kỹ sư cổng: guards.py, B7.1–B7.2; phân tích/sửa quyền phê duyệt, trần khách/ngày, C6–C7 và C9.
+
+### Đóng góp cụ thể
+
+Theo commit 24f01e8: bổ sung _approval_problem để kiểm phạm vi, người duyệt, thời hạn, trạng thái và hạn mức; cộng ledger kiểm trần tự động/ngày/khách; cập nhật cây nguyên nhân trước/sau. Đây là tổng hợp từ lịch sử repo, cần cá nhân rà soát; chưa khẳng định cá nhân đã/không dùng AI.
+
+### Bằng chứng
+
+Commit 24f01e8; guards.py; grade `R-S8-grade-20261118-205236-536bf2`: visible/regression đạt, bản sửa vẫn phục vụ S8-05 hợp lệ.
+
+### Exit ticket
+
+Bản gợi ý để cá nhân tự xác nhận: điều học được — mã tồn tại không đồng nghĩa phê duyệt hợp lệ. Điều chưa chắc — bảo đảm kiểm quyền và ghi tiền nguyên tử khi có nhiều yêu cầu đồng thời. Cá nhân cần tự bổ sung việc dùng AI và xác nhận phản ánh này.
+
+## MaiTuanAnh-2A202603574
+
+### Phần việc phụ trách
+
+Sản phẩm/kinh doanh: tiêu chí, B3/B7.4, business config; specification/giả định C5, phối hợp quyết định v1/v2 và chi phí/ROI.
+
+### Đóng góp cụ thể
+
+Tổng hợp dựa phân công và nội dung repo: B3, B7.4, C5 có nội dung; commit 91a1c4f cập nhật C5. Tiêu chí/Phiếu A được trợ lý hỗ trợ trong phiên làm việc của trưởng nhóm, không gán toàn bộ nội dung đó là do cá nhân tự viết. Thành viên cần xác nhận phạm vi đóng góp thực tế và việc dùng AI.
+
+### Bằng chứng
+
+Các mục B3/B7.4/C5, commit 91a1c4f và grade `R-S8-grade-20261118-205236-536bf2`; S8 after chi phí 2.952đ/ticket, ROI 2.39; bộ nền nhóm ? vẫn cần xem lại riêng.
+
+### Exit ticket
+
+Bản gợi ý để cá nhân tự xác nhận: điều học được — ROI là tiết kiệm ròng chia tổng chi phí, không phải tỷ lệ tiết kiệm trên giá làm tay. Điều chưa chắc — chi phí theo kho và công kiểm lại sẽ thay đổi bao nhiêu ở pilot thật. Chưa ghi nhận phản hồi tự đánh giá của cá nhân.
+
+## Ghi nhận dùng AI và xác nhận cá nhân
+
+Vũ Đức Thắng đã dùng trợ lý trong phiên này để đọc repo, hỗ trợ soạn phiếu/config, tổng hợp bằng chứng, chạy kiểm tra và chuẩn bị hồ sơ. Ba mục cá nhân bổ sung ở trên là bản tổng hợp có ghi nguồn và gợi ý exit ticket, chưa thay lời tự xác nhận của thành viên. Mục Nguyễn Hữu Tiến giữ nguyên nội dung từ repo; Tiến cần tự bổ sung việc dùng AI nếu có. Không ghi nhận ai đã nộp LMS hoặc ký v2 khi chưa có xác nhận.

@@ -56,3 +56,7 @@ Không chạy lại checkpoint, không đổi criteria, round1.lock hoặc hai s
 - Mai Tuấn Anh: rà B3/B7.4 và sự khác biệt business hiện tại với snapshot; giải thích quyết định trên đúng phạm vi bằng chứng.
 - Bùi Mạnh Linh: giữ snapshot, bổ sung bằng chứng kiểm quyền hạn/ghi lặp ở vòng 2 theo nguyên nhân chung.
 - Vũ Đức Thắng: tổng hợp thiếu sót, giữ B8 lịch sử, cập nhật checklist vòng 2 ở C11; không đánh dấu CP3 đủ bằng chứng cho tới khi các report được đối chiếu hoặc giới hạn được giải trình rõ.
+
+## Cập nhật sau hoàn thiện hồ sơ
+
+Đã có phép đo prepared bổ sung `R-base-prepared-20261118-204525-c522a1` và grade `R-S8-grade-20261118-205236-536bf2`. Một số ghi chú “chưa chạy” ở trên là trạng thái lần rà trước, xem docs/evidence-status.md để biết kết quả hiện tại và tham chiếu lịch sử còn thiếu. Giữ nguyên snapshot/B8.

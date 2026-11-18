@@ -1,0 +1,15 @@
+# Keep the instructor's hash-checked source files in their original LF form.
+data/** text eol=lf
+incidents/** text eol=lf
+lab10/*.py text eol=lf
+tests/*.py text eol=lf
+
+# Keep editable inputs portable; preserve the signed round-1 CRLF snapshots.
+config/operating_gates.json text eol=lf
+config/switches.json text eol=lf
+lab10/guards_round1.py text eol=crlf
+config/operating_gates.round1.json text eol=crlf
+config/round1.lock text eol=crlf
+
+# Collected signed artifacts retain their exact bytes independently of Git defaults.
+submission/** -text whitespace=cr-at-eol

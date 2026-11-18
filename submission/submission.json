@@ -6,12 +6,12 @@
     "NguyenHuuTien-2A202603598",
     "MaiTuanAnh-2A202603574"
   ],
-  "incident": "",
-  "decision_v1": "",
-  "decision_v2": "",
+  "incident": "S8",
+  "decision_v1": "Tiếp tục",
+  "decision_v2": "Cải tiến thêm",
   "three_lines": {
-    "environment_assumption": "",
-    "reduce_or_prevent": "",
-    "measure_in_pilot": ""
+    "environment_assumption": "Thiết kế giả định dữ liệu phê duyệt được cập nhật kịp thời và nhân viên chấp nhận kiểm mẫu 10% khi quyền hạn, giải thích và bằng chứng đã đủ; ngoài thực tế có thể tồn tại dữ liệu trễ hoặc công kiểm tay ngoài log.",
+    "reduce_or_prevent": "Gate ngăn dùng phê duyệt sai và vượt trần khách/ngày trong luồng tuần tự đã thử, nhưng chỉ giảm rủi ro ngoài thực tế vì chưa chứng minh đồng bộ nguồn dữ liệu, giao dịch nguyên tử hoặc tải đột biến.",
+    "measure_in_pilot": "Trước Gate 2 phải đo lại lỗi hoàn và lỗi hãng theo đối soát thật, công kiểm tay và thời gian chờ giờ cao điểm, chi phí/ROI theo kho kể cả nhóm không khớp kho, độ trễ thu hồi phê duyệt và sự cố ghi lặp; chỉ mở pilot sau khi gỡ điều kiện toàn vẹn."
   }
 }
