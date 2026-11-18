@@ -82,33 +82,33 @@ python3 -m lab10.trace --suite Sx --ticket <ID> --seed 11
 Ba loại lỗi: **giới hạn của hệ thống** · **lỗi ngữ cảnh** · **lỗi chìm** (cả người dùng lẫn hệ thống đều không nhận ra; nguy hiểm nhất,
 người chịu hại thường là bên thứ ba). Định nghĩa đầy đủ và ví dụ: Phiếu B mục B2.
 
-**Tác hại của thẻ:** cho ai `____` · đo bằng gì `____` · bao nhiêu ở mốc base `____`
+**Tác hại của thẻ:** cho ai `Trưởng ca CSKH (Trần Thị Hạnh), nhân viên CSKH, LogiX Finance và các Hãng vận chuyển (DNB, VNX)` · đo bằng gì `wrongful_refund_vnd, wrongful_carrier_faults, review_rate (kiểm tay), queue_stuck, queue_wait_max_min, cost_per_ticket_vnd, roi` · bao nhiêu ở mốc base `6.845.000đ hoàn sai · 35 lỗi hãng oan · kiểm tay 100% (review_rate=1.0) · ùn 36 ca (chờ max 216 phút) · chi phí 11.225đ/ticket · ROI -2.45`
 
 ### Phần 1 · Ghi lỗi (bằng chứng là mã ticket@seed và dòng trace, không tả chung chung)
 
 | # | Lỗi: người ta thấy gì (dán dòng trace / sổ cái) | Ai gặp, ai chịu | Hệ trọng (thấp / cao) | Loại lỗi (giới hạn hệ thống / ngữ cảnh / chìm) |
 |---|---|---|---|---|
-| 1 | | | | |
-| 2 | | | | |
-| 3 | | | | |
+| 1 | **Ticket S8-02@11** (Approval hết hạn):<br>Trace: `05 approval_used {"approval_id": "A-2802"}`<br>`06 tool {"tool": "issue_refund", "ticket_id": "S8-02", "order_id": "O-2802", "amount_vnd": 230000, "payer": "LOGIX", "approval_id": "A-2802"}`<br>Sổ cái: `[{'ticket_id': 'S8-02', 'order_id': 'O-2802', 'amount_vnd': 230000, 'approval_id': 'A-2802'}]`<br>Nhãn: `{"status": ["escalated"], "refund_vnd": 0}` (HỎNG). Mã `A-2802` có `expires_at: 2026-11-10` đã hết hạn từ 6 ngày trước nhưng model vẫn tự lấy mã duyệt này để tự động hoàn tiền 230.000đ. | Model tự lấy mã thực thi; Trưởng ca Hạnh bị đứng tên mạo danh giải trình kiểm toán; LogiX mất tiền oan; Hãng DNB bị phạt oan. | Cao | **Lỗi chìm** (giao dịch hoàn tất bình thường không ném lỗi runtime, chỉ lộ ra khi nhận bảng kiểm toán nội bộ). |
+| 2 | **Ticket S8-03@11** (Hoàn tiền vượt hạn mức phê duyệt):<br>Trace: `04 proposal {"amount_vnd": 235000}`<br>`05 approval_used {"approval_id": "A-2803"}`<br>`06 tool {"tool": "issue_refund", ..., "amount_vnd": 235000, "approval_id": "A-2803"}`<br>Sổ cái: `[{'ticket_id': 'S8-03', 'amount_vnd': 235000, 'approval_id': 'A-2803'}]`<br>Nhãn: `{"status": ["escalated"]}` (HỎNG). Mã `A-2803` chỉ cho phép `max_vnd: 150000`, nhưng model tự ý chi hoàn 235.000đ (vượt trần 85.000đ). | Trưởng ca Hạnh chịu trách nhiệm khoản duyệt vượt quyền; LogiX thất thoát ngân sách tài chính; CSKH mất kiểm soát. | Cao | **Lỗi chìm** (hệ thống tự khớp mã duyệt mà không kiểm tra ràng buộc giá trị trần `max_vnd` của phê duyệt). |
+| 3 | **Ticket S8-43@11** (Khách gửi dồn dập nhiều đơn hoàn trong ngày):<br>Trace: `05 tool {"tool": "issue_refund", "ticket_id": "S8-43", "order_id": "O-2843", "customer_id": "C-16", "amount_vnd": 104000, "payer": "LOGIX", "approval_id": null}`<br>Sổ cái: `[{'ticket_id': 'S8-43', 'amount_vnd': 104000}]`<br>Nhãn: `{"status": ["escalated"]}` (HỎNG). Khách `C-16` yêu cầu hoàn liên tiếp nhiều đơn trong ngày (S8-40: 86k, S8-41: 94k, S8-42: 102k đã hoàn 282k; S8-43 đòi tiếp 104k), hệ thống vẫn tự động hoàn tiếp thay vì dừng lại escalate. | LogiX chịu rủi ro bị khách lạm dụng chính sách bồi thường chia nhỏ đơn; CSKH không kiểm soát được hạn mức ngày. | Cao | **Giới hạn của hệ thống** (thiếu quy tắc và cổng kiểm soát ngưỡng hoàn tiền tích luỹ theo ngày của một khách hàng). |
 
 ### Phần 2 · Tìm nguồn (đánh dấu câu nào đúng với từng lỗi)
 
 | Câu hỏi | Lỗi 1 | Lỗi 2 | Lỗi 3 |
 |---|---|---|---|
-| **Đầu vào:** hệ thống có tự diễn giải / sửa đầu vào của người dùng theo cách họ không lường? Có đặt sai trọng số cho một lời nói hay tín hiệu của người dùng? | | | |
-| **Độ liên quan:** hệ thống có thiếu dữ liệu cần để quyết đúng? Dữ liệu vào có nhiễu, thiếu ổn định? | | | |
-| **Thứ bậc hệ thống:** có hai hệ thống cùng ghi / cùng theo dõi một thứ mà không rõ bên nào là chủ (ví dụ CSKH hoàn tay và trợ lý cùng ghi sổ)? | | | |
-| **Trạng thái hỏng:** nhiều lỗi cộng lại có làm tính năng không dùng được (ví dụ LLM lỗi liên tiếp)? | | | |
+| **Đầu vào:** hệ thống có tự diễn giải / sửa đầu vào của người dùng theo cách họ không lường? Có đặt sai trọng số cho một lời nói hay tín hiệu của người dùng? | Không | Không | **Có** (coi từng ticket là độc lập rời rạc, bỏ qua tín hiệu yêu cầu hoàn dồn dập bất thường của cùng một khách hàng) |
+| **Độ liên quan:** hệ thống có thiếu dữ liệu cần để quyết đúng? Dữ liệu vào có nhiễu, thiếu ổn định? | **Có** (thiếu dữ liệu kiểm tra trạng thái và vòng đời của `approval_id`: `status`, `expires_at`, `ticket_id`) | **Có** (thiếu đối chiếu số tiền đề xuất với hạn mức `max_vnd` của mã duyệt trong DB) | **Có** (thiếu dữ liệu tích luỹ lịch sử các khoản hoàn trong ngày của `customer_id`) |
+| **Thứ bậc hệ thống:** có hai hệ thống cùng ghi / cùng theo dõi một thứ mà không rõ bên nào là chủ (ví dụ CSKH hoàn tay và trợ lý cùng ghi sổ)? | **Có** (Trưởng ca cấp mã duyệt bên ngoài cho ca khác/đã thu hồi, nhưng AI tự tiện lấy quyền phê duyệt đè lên quy trình phân quyền của người) | **Có** (Phân quyền kiểm soát ngân sách của Trưởng ca bị AI tự ý vượt qua mà không cần xác nhận) | Không |
+| **Trạng thái hỏng:** nhiều lỗi cộng lại có làm tính năng không dùng được (ví dụ LLM lỗi liên tiếp)? | **Có** (Các khoản hoàn mạo danh khiến Trưởng ca mất hoàn toàn lòng tin, bắt cả ca kiểm tay 100%, làm tê liệt mục tiêu tự động hoá, ùn 36 ca) | **Có** (Góp phần làm trầm trọng thêm sự mất lòng tin sau đợt kiểm toán) | **Có** (Làm tăng gánh nặng kiểm tra thủ công của nhân viên CSKH) |
 
 ### Phần 3 · Hướng xử lý (mỗi lỗi một ô)
 
 | | Lỗi 1 | Lỗi 2 | Lỗi 3 |
 |---|---|---|---|
-| Vì sao người gặp coi đây là lỗi | | | |
-| Kiểu giải pháp: phản hồi cho người dùng / trao quyền kiểm soát cho người / khác | | | |
-| Đường đi của người sau khi có giải pháp (ví dụ: ticket chuyển sang người duyệt → duyệt → khách được trả lời) | | | |
-| Hệ thống học được gì (tín hiệu ghi lại để theo dõi: tên metric trong `monitors.py`) | | | |
+| Vì sao người gặp coi đây là lỗi | Trưởng ca Hạnh bị quy kết phê duyệt sai, phải giải trình khoản tiền mình không ký hoặc đã hết hạn; hãng DNB bị phạt oan; tiền công ty thất thoát. | Vượt quá thẩm quyền phê duyệt ngân sách của Trưởng ca (duyệt 150k nhưng bị chi 235k); vi phạm kỷ luật tài chính. | Khách hàng có dấu hiệu gian lận bòn rút tiền bồi thường; hệ thống tự động ngây thơ không kiểm soát rủi ro luỹ kế. |
+| Kiểu giải pháp: phản hồi cho người dùng / trao quyền kiểm soát cho người / khác | **Trao quyền kiểm soát cho người:** Cổng `write_gate` chặn: nếu `amount_vnd > 200.000` mà không có mã duyệt hợp lệ (còn hạn, đúng ticket, status='valid') thì huỷ lệnh, chuyển `escalated`. | **Trao quyền kiểm soát cho người:** Cổng kiểm tra `amount_vnd <= approval.max_vnd`; nếu vượt trần thì chặn hoàn tự động và chuyển sang người duyệt `escalated`. | **Trao quyền kiểm soát cho người / Chặn hạn mức:** Cổng kiểm tra lịch sử hoàn trong ngày của khách; nếu vượt tần suất hoặc tổng tiền ngày thì dừng tự động, chuyển `escalated`. |
+| Đường đi của người sau khi có giải pháp (ví dụ: ticket chuyển sang người duyệt → duyệt → khách được trả lời) | Phát hiện mã duyệt không hợp lệ -> chặn lệnh `issue_refund` -> chuyển trạng thái `escalated` vào hàng chờ -> Trưởng ca/CSKH kiểm tra thực tế, tự tay duyệt mã mới hoặc từ chối -> khách nhận phản hồi. | Phát hiện số tiền hoàn > `max_vnd` -> chặn lệnh hoàn tự động -> chuyển ticket sang Trưởng ca duyệt bổ sung hạn mức -> Trưởng ca xác nhận số tiền mới -> hoàn tiền. | Phát hiện khách C-16 đã có nhiều đơn hoàn trong ngày -> chuyển ticket S8-43 sang `escalated` -> nhân viên CSKH tra soát lại toàn bộ lịch sử đơn của khách -> xử lý thủ công. |
+| Hệ thống học được gì (tín hiệu ghi lại để theo dõi: tên metric trong `monitors.py`) | `invalid_approval_rate(trials)` (tỷ lệ các ca dùng approval không hợp lệ / hết hạn / bị thu hồi / sai ticket). | `approval_limit_exceeded_rate(trials)` (tỷ lệ các ca yêu cầu hoàn tiền vượt trần cho phép của mã phê duyệt). | `repeat_customer_refund_rate(trials)` hoặc theo dõi trần `auto_refund_day_max_vnd`. |
 
 Yêu cầu: ít nhất **hai lỗi có nguồn khác nhau** ở phần 2, và ít nhất một lỗi được xếp đúng là **lỗi chìm**.
 
@@ -336,14 +336,14 @@ Thẻ S5 dùng mục này cho một con số kinh doanh: chi phí mỗi ticket t
 
 | | Chỉ số theo dõi mới của bàn |
 |---|---|
-| **Tên trong `MONITORS`** | |
-| **Bước / hành vi được đo** | |
-| **Thước đo** (một câu, có đơn vị) | |
-| **Dữ liệu** (trường nào của trial, không có nhãn) | |
-| **Cách tính** (công thức, mẫu số, cách xử lý ca thiếu dữ liệu) | |
-| **Khung thời gian / ngưỡng báo động** | |
-| **Điểm mù** (chỉ số này KHÔNG thấy gì) | |
-| Giá trị trên bộ nền · trên thẻ (đọc mục `monitor` của report) | |
+| **Tên trong `MONITORS`** | `approval_usage_rate` |
+| **Bước / hành vi được đo** | Bước đề xuất và ghi sổ hoàn tiền có sử dụng mã phê duyệt (`approval_id`) để vượt hạn mức tự động thông thường (200.000đ). |
+| **Thước đo** (một câu, có đơn vị) | Tỉ lệ các ticket có kích hoạt mã phê duyệt trên tổng số ticket được xử lý trong ca (tỉ lệ từ 0.0 đến 1.0, hoặc %). |
+| **Dữ liệu** (trường nào của trial, không có nhãn) | Trường `events` (tìm event `type == 'approval_used'`) hoặc trường `ledger` (tìm dòng có `approval_id` khác null) của mỗi trial; hoàn toàn không dùng nhãn ground truth. |
+| **Cách tính** (công thức, mẫu số, cách xử lý ca thiếu dữ liệu) | `count(trial có approval_used hoặc ledger approval_id) / max(1, len(trials))`. Nếu danh sách `trials` rỗng trả về `0.0`. |
+| **Khung thời gian / ngưỡng báo động** | Tính theo từng ca (480 phút) hoặc theo ngày; báo động khi tỉ lệ vượt quá 8% (mức nền thông thường ~4.5%) hoặc khi phát sinh ca dùng mã duyệt mà hàng chờ duyệt của Trưởng ca không ghi nhận. |
+| **Điểm mù** (chỉ số này KHÔNG thấy gì) | Không tự phân biệt được mã phê duyệt là hợp lệ hay không hợp lệ (hết hạn, thu hồi, sai đơn) nếu không truy vấn bảng cơ sở dữ liệu `approvals`. |
+| **Giá trị trên bộ nền · trên thẻ** (đọc mục `monitor` của report) | Bộ nền: `0.045455` (4.55%, 5/110 ca) · Trên thẻ S8 (mốc base): `0.115385` (11.54%, 30/260 ca) — sáng đèn rõ rệt do tỉ lệ đơn đòi mã duyệt tăng gấp 2.5 lần. |
 
 ---
 

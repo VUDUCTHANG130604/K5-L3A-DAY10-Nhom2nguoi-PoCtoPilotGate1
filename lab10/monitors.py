@@ -19,7 +19,30 @@ def escalation_rate(trials):
     return sum(t["status"] == "escalated" for t in trials) / max(1, len(trials))
 
 
+def approval_usage_rate(trials):
+    """Tỉ lệ ticket sử dụng mã phê duyệt (approval_id trong ledger hoặc event approval_used)."""
+    if not trials:
+        return 0.0
+    count = 0
+    for t in trials:
+        used = any(e.get("type") == "approval_used" for e in t.get("events", [])) or any(
+            row.get("approval_id") for row in t.get("ledger", [])
+        )
+        if used:
+            count += 1
+    return count / len(trials)
+
+
+def recheck_rate(trials):
+    """Tỉ lệ ticket bị nhân viên CSKH tự kiểm tra lại bằng tay do mất niềm tin."""
+    if not trials:
+        return 0.0
+    return sum(t.get("review_kind") == "recheck" for t in trials) / len(trials)
+
+
 MONITORS = {
     "escalation_rate": escalation_rate,     # có sẵn; KHÔNG tính là metric mới của đội
+    "approval_usage_rate": approval_usage_rate,
+    "recheck_rate": recheck_rate,
 }
 STARTER_MONITORS = ("escalation_rate",)
