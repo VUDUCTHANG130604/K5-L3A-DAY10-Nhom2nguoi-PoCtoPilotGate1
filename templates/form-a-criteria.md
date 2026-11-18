@@ -99,7 +99,7 @@ Người đứng tên ký: Vũ Đức Thắng (trưởng nhóm, vận hành/phá
 | Mục | Bằng chứng |
 |---|---|
 | Thời điểm ký | signed_at = 2026-11-18T15:19:20 (giờ máy ghi trong lock); hash SHA-256 = 887e9a79ddb4ac2e68d16012373fc61ab0288e7c167878d4a372dc265bd556bb. |
-| Commit Sign acceptance criteria | Chưa thực hiện. |
-| Push origin main | Chưa thực hiện. |
+| Commit Sign acceptance criteria | 395b881; gồm tiêu chí, lock và Phiếu A. |
+| Push origin main | Có; commit 395b881 đã push thành công lên origin/main trước mọi lần eval. |
 
 Sau khi ký giữ nguyên acceptance_criteria.json, kể cả định dạng. Không sửa code trong CP2.
