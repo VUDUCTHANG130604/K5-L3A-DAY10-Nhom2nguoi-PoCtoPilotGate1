@@ -275,17 +275,17 @@ python3 -m unittest discover -s tests
 
 | # | Cổng (hàm và nhánh, ví dụ `write_gate` khi `tool == "issue_refund"`) | Ứng với dòng nào ở B6 / B4 | Chặn điều gì, dựa vào nguồn sự thật nào | Mã lần chạy `base · after` | Ca đang đúng nào bị hỏng? (phải là "không") |
 |---|---|---|---|---|---|
-| 1 | | | | | |
-| 2 | | | | | |
-| 3 | | | | | |
+| 1 | `write_gate`, `issue_refund` | B6 - Kỹ thuật: model tin số ngày khách tự khai thay vì tracking | Tra kiện của ticket, tính số ngày trễ từ tracking và mức được hưởng theo chính sách có hiệu lực; từ chối nếu không đủ điều kiện, giới hạn số tiền nếu yêu cầu cao hơn. | `R-base-after-20261118-154301-d8c618` | Không (110/110 lượt đạt) |
+| 2 | `write_gate`, `file_carrier_fault` | B6 - Pháp lý: hãng bị ghi lỗi khi tracking không chứng minh lỗi | Đối chiếu kiện, hãng, số ngày trễ và nguyên nhân ghi nhận trong tracking với chính sách hiện hành; từ chối ghi lỗi nếu không khớp. | `R-base-after-20261118-154301-d8c618` | Không (110/110 lượt đạt) |
+| 3 | `write_gate`, `notify_carrier` | B6 - Pháp lý: dữ liệu khách/người nhận bị gửi cho bên thứ ba | Chỉ cho gửi các trường nằm trong `carrier_notice_fields` của chính sách; loại trường ngoài danh sách (như ghi chú khách và liên hệ người nhận). | `R-base-after-20261118-154301-d8c618` | Không (110/110 lượt đạt) |
 
 ### B7.2 · Câu 2.7 · Hai bước tránh rò rỉ dữ liệu
 
 Bàn đang chỉnh cổng tới khi 22 ticket bộ nền xanh hết. Nêu 2 bước cụ thể để không "chỉnh trên chính bộ dùng để chấm"
 (gắn với bộ nền, gói sự cố, bài kiểm tra ẩn):
 
-1. …
-2. …
+1. Dùng bộ nền 22 ticket × 5 seed chỉ làm bộ hồi quy; sau mỗi lần sửa chạy lại toàn bộ và yêu cầu không phát sinh ca hỏng. Không thêm nhánh theo mã ticket/câu chữ hoặc tối ưu để khớp nhãn riêng của bộ nền; quy tắc phải dựa trên tracking và chính sách.
+2. Giữ gói sự cố làm dữ liệu giữ lại: chỉ nhận/chạy sau khi Coach phát hành, không dùng để dò trước hay sao chép ticket/nhãn vào code. Khi được phát hành thì kiểm tra trên gói đó, sửa theo nguyên nhân tổng quát; bài kiểm tra ẩn để nguyên cho grader chạy sau buổi học, không tìm cách xem hoặc tái tạo dữ liệu ẩn.
 
 ### B7.3 · Câu 2.8 · Một behavioral test
 
