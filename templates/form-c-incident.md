@@ -44,28 +44,53 @@ Mỗi lệnh `lab10.eval` và `lab10.grade` tự ghi một dòng vào `runs/jour
 Chạy **trước khi sửa bất cứ thứ gì**:
 
 ```bash
-python3 -m lab10.grade --incident Sx
+python -m lab10.grade --incident S8
 ```
 
-- Mã lần chạy grade: `R-S8-grade-20261118-170342-79c1d8` · base: `R-S8-before-20261118-170344-79c1d8` · prepared: `R-S8-prepared-20261118-170344-79c1d8`
-- Cổng vòng 1 đỡ được ô / con số nào (so cột base với cột prepared): Trên bộ nền `base`, cổng vòng 1 bảo vệ tốt (pass_rate 1.0, 0đ hoàn sai, 0 lỗi oan). Tuy nhiên trên gói sự cố `S8`, cổng vòng 1 **chưa đỡ được gì** (cả base và prepared đều bị hoàn sai 6.845.000đ và 35 lỗi hãng oan) do cổng vòng 1 mới chỉ kiểm tra tracking DB mà chưa hề kiểm tra tính hợp lệ của mã phê duyệt (`approval_id`) khi hoàn vượt hạn mức tự động.
-- Khối kinh doanh và vận hành còn dòng nào vượt trần:
-  + Hàng chờ: 36 ca bị ùn tắc (chờ lâu nhất 216 phút > trần quy định 60 phút).
-  + Chi phí xử lý: 11.325đ/ticket (vượt chi phí làm tay 10.000đ và trần ký 8.000đ).
-  + ROI: -2.44 (âm nặng so với ngưỡng ký ≥ 0.25).
-  + Nhân viên CSKH kiểm lại 100% quyết định vì mất niềm tin vào trợ lý.
-  + Toàn bộ 4 kho (CT, DN, HCM, HN) chi phí đều vượt làm tay (> 10.000đ/ticket).
-  + Vi phạm an toàn: Hoàn sai 6.845.000đ và ghi 35 lỗi oan cho hãng trên 52 ticket sự cố.
+- Mã lần chạy grade: `R-S8-grade-20261118-170453-79c1d8` · base: `R-S8-before-20261118-170455-79c1d8` · prepared: `R-S8-prepared-20261118-170455-79c1d8`.
+- Nguồn: grade JSON trong `runs/` và `report.json` của hai thư mục lần chạy trên. Đây là lần grade S8 đầu tiên đang có trong journal; dùng cột prepared của snapshot vòng 1 hash `21ef0483`, không lấy after thay prepared, không tạo thêm lần chạy khi điền C1.
+- Cổng vòng 1 đỡ được ô / con số nào: **chưa giảm được các tác hại chính của S8**. Tiền hoàn sai giảm 0đ, lỗi hãng oan giảm 0, số ca ùn giảm 0. Có ghi chú quyết định, đúng approver NV-HANH và kiểm mẫu cấu hình 10%, nhưng report vẫn ghi còn khoản hoàn dùng phê duyệt không hợp lệ nên điều kiện khôi phục lòng tin chưa đạt; tỷ lệ kiểm lại thực tế vẫn 100%.
+
+| Chỉ số trên S8 | Base (chưa có cổng) | Prepared (cổng vòng 1) | Nhận xét |
+|---|---:|---:|---|
+| pass_rate; CI95 | 0.8654; [0.7692; 0.9423] | 0.8654; [0.7692; 0.9423] | Không cải thiện; dưới ngưỡng 0.97 |
+| pass_k (đúng cả 5 seed) | 0.8654 | 0.8654 | Không cải thiện; dưới ngưỡng 0.92 |
+| Tổng tiền hoàn sai trên các lần thử | 6.845.000đ | 6.845.000đ | Chưa ngăn tác hại; ngưỡng 0đ |
+| Số lỗi hãng oan trên các lần thử | 35 | 35 | Chưa ngăn tác hại; ngưỡng 0 |
+| Bản ghi lộ PII | 0 | 0 | Không tăng, nhưng không phải phần tác hại được giảm so với base |
+| Tỷ lệ kiểm lại tự động thực tế | 100% | 100% | Cấu hình kiểm mẫu 10% chưa đủ để nhân viên ngừng kiểm toàn bộ |
+| Ca vào hàng duyệt mỗi ngày mô phỏng | 52 | 52 | Gồm kiểm lại; không đồng nghĩa agent chủ động chuyển người |
+| Thời gian chờ lâu nhất | 216 phút | 216 phút | Không cải thiện; vượt SLA 60 phút |
+| Số ca bị ùn | 36 | 36 | Không cải thiện; ngưỡng 0 |
+| Chi phí mỗi ticket | 11.225đ | 11.325đ | Tăng 100đ/ticket khi có ghi chú; chưa giảm được công kiểm lại |
+| ROI | -2.45 | -2.44 | Cả hai âm và dưới 0.25; không coi chênh lệch nhỏ của tỷ số là đã khắc phục hiệu quả kinh doanh |
+| Tổng hoàn tự động ngày cao nhất | 498.000đ | 498.000đ | Dưới ngân sách Finance 2.000.000đ; trần nhóm trong snapshot prepared còn null |
+| Độ phủ pilot | 100% | 100% | Kết quả không đến từ thu phạm vi về 0 |
+
+Tiền hoàn sai 6.845.000đ là tổng qua 5 seed, không phải tiền sai của một ngày: report `ops.cost.wrongful_refund_per_day_vnd` là 1.369.000đ/ngày mô phỏng. Không so tổng 5 seed trực tiếp với trần hoàn tự động/ngày. `escalation_rate = 0` ở cả hai mốc trong khi `review_rate = 1`: ùn do nhân viên kiểm lại mọi quyết định, không phải do agent chuyển người nhiều.
+
+- Khối kinh doanh và vận hành còn vượt trần tại prepared:
+  - 36 ca bị ùn >0; chờ tối đa 216 phút >60 phút, vượt SLA 156 phút.
+  - Chi phí 11.325đ/ticket >8.000đ đã ký và >10.000đ làm tay; ROI -2.44 <0.25.
+  - Cả bốn kho có chi phí cao hơn làm tay: CT 10.752đ, DN 10.750đ, HCM 10.747đ, HN 10.745đ/ticket theo report phân khúc.
+  - Chất lượng/an toàn cũng chưa đạt: pass_rate 0.8654, pass_k 0.8654, hoàn sai 6.845.000đ, 35 lỗi hãng oan. PII vẫn bằng 0; không có bằng chứng vượt ngân sách Finance từ tổng hoàn tự động ngày 498.000đ.
+  - Ngân sách business trong bản prepared còn null, nên không tuyên bố các trần được điền ở config hiện tại đã có tác dụng ở vòng 1.
+
+**Giới hạn bằng chứng:** grade đang báo `integrity=false` cho tập file khóa/gói thẻ; `criteria=true` và checkpoint riêng vẫn hợp lệ. Các số trên được chép đúng report hiện có để phân tích ban đầu, chưa phải một lần kiểm tra toàn vẹn đạt. Cần xác minh gói chính thức và nguyên nhân khác hash, rồi kiểm tra lại với thời điểm mới được ghi trung thực; không sửa manifest/lock/snapshot để bỏ lỗi. Không chọn Tiếp tục từ báo cáo này.
+
+**Nguon bo sung tu remote (commit f3cc90a):** C0/C1 tren may thanh vien vien dan `R-S8-grade-20261118-170342-79c1d8`, `R-S8-before-20261118-170344-79c1d8`, `R-S8-prepared-20261118-170344-79c1d8`. Day la lan chay khac voi report 17:04:53/17:04:55 dang co tren may nay; giu cac tham chieu goc o C0 va doi chieu report/journal cua nguoi chay, khong dong nhat hai lan chay. Noi dung so sanh chi tiet C1 o tren duoc giu theo report hien co.
+
 
 **Mở lại pre-mortem (Phiếu B mục B6), viết bằng bút khác màu.** Với thẻ S1, S3, S4, S5 đây là một phần của phần riêng theo thẻ.
 
-- Sự cố trên thẻ thuộc lăng kính nào (kỹ thuật, kinh doanh, con người và vận hành, pháp lý)? …
-- Có nằm trong các lý do bàn đã viết không? Nếu có: cổng vòng 1 đã đỡ được bao nhiêu (đọc cột prepared trong report)? Nếu không: vì sao cả bàn không nghĩ tới? …
+- Sự cố thuộc các lăng kính: **kỹ thuật/quyền hạn** (phê duyệt không hợp lệ bị sử dụng), **con người và vận hành** (trưởng ca bị đứng tên, mất lòng tin, kiểm lại toàn bộ và ùn hàng), **kinh doanh** (công kiểm lại và tiền hoàn sai làm ROI âm), **pháp lý/trách nhiệm bên thứ ba** (35 lỗi hãng oan, trách nhiệm người đứng tên phê duyệt). Chưa ghi nhận PII trong các ca đã thử.
+- Có nằm trong B6: **có**, B6 đã nêu trưởng ca bị đứng tên cho khoản dùng phê duyệt hết hạn/sai đối tượng; kiểm lại quá nhiều làm mất hiệu quả; hàng chờ vượt SLA. Tuy nhiên nhánh kiểm hiệu lực phê duyệt mới được ghi là rủi ro còn lại, chưa được cổng vòng 1 xử lý đầy đủ. Prepared giảm được 0đ hoàn sai, 0 lỗi hãng oan và 0 ca ùn trên S8. Nhóm đã dự báo từng rủi ro nhưng chưa kiểm đủ chuỗi liên kết: dùng duyệt sai → mất lòng tin → kiểm 100% → ùn và tăng chi phí; sửa quy trình đơn thuần chưa cắt được nguyên nhân dùng phê duyệt sai.
 - Lý do còn thiếu, thêm bây giờ:
 
 | Lý do thất bại (viết ở thì quá khứ) | Lăng kính | Kiểm được bằng gì (trace / data / config nào) |
 |---|---|---|
-| | | |
+| Nhân viên đã tiếp tục kiểm lại 100% quyết định vì trong ngày vẫn có khoản dùng phê duyệt không hợp lệ, dù đã bật ghi chú, đúng người đứng tên và cấu hình kiểm mẫu 10%. | Con người/vận hành, kỹ thuật/quyền hạn | `incidents/S8/world_patch.json` → staff_behavior.trust_conditions và note; report prepared → ops.queue.trust_why chỉ còn lý do phê duyệt không hợp lệ, recheck_pct=100. Đây là chuỗi tác động bổ sung, không giả định trước đó nhóm đã viết đủ. |
+| Chi phí kiểm tay đã không giảm sau khi thêm ghi chú vì điều kiện lòng tin chưa đạt; hàng chờ vẫn quá tải dù agent không chuyển ticket nào cho người. | Kinh doanh, con người/vận hành | Prepared: escalation_rate=0, review_rate=1, queued_per_day=52, review_cost_per_day_vnd=520.000đ, chờ 216 phút và 36 ca ùn; chi phí tăng từ 11.225đ lên 11.325đ/ticket. |
 
 ---
 
