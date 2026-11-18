@@ -428,22 +428,22 @@ bao nhiêu thời gian? (3) Có phần nào của dự án không nên làm ti�
 
 | | **v1** (phút 105–115, TRƯỚC khi nhận thẻ sự cố) |
 |---|---|
-| Commit ký tiêu chí (message `Sign acceptance criteria`; hash commit, tuỳ chọn) | |
-| Hash chốt cổng vòng 1 (8 ký tự lệnh `lab10.checkpoint` in ra, tuỳ chọn) | |
-| Mã lần chạy dùng làm bằng chứng | bộ nền, mốc base: ________ · bộ nền với cổng vòng 1 (prepared): ________ |
-| Còn dòng "vượt trần" nào trong report? (hàng chờ, chi phí, ROI, trần tiền, pháp lý) | |
-| Kho hoặc hãng có số xấu nhất: ____. Nếu chỉ nhìn phân khúc này, quyết định có đổi không? *(Đọc khối "theo kho và hãng" ở cuối output `lab10.eval` / `lab10.grade`, hoặc mục `by_segment` trong `report.json`.)* | |
-| Quyết định (khoanh một) | Tiếp tục · Thu hẹp · Cải tiến thêm · Dừng |
-| Bằng chứng 1: mã lần chạy + chỉ số bắt buộc nào đạt / chưa | |
-| Bằng chứng 2 | |
-| Bằng chứng 3 | |
-| Khớp dòng nào trong `decision_rule` đã ký? | |
-| Nếu Thu hẹp: cắt phần nào, vì sao | |
-| Nếu Cải tiến thêm: giả thuyết cụ thể + hạn | |
-| Nếu Dừng: bài học ghi lại | |
-| Một bằng chứng còn thiếu (thứ bộ nền chưa đo được) | |
-| Ngày quyết định lại (trừ khi Dừng) | |
-| PIC ký | |
+| Commit ký tiêu chí (message `Sign acceptance criteria`; hash commit, tuỳ chọn) | `395b881` (commit `Sign acceptance criteria`, hash tiêu chí `887e9a79`) |
+| Hash chốt cổng vòng 1 (8 ký tự lệnh `lab10.checkpoint` in ra, tuỳ chọn) | `21ef0483` |
+| Mã lần chạy dùng làm bằng chứng | bộ nền, mốc base: `R-base-before-20261118-161648-0db83f` · bộ nền với cổng vòng 1 (prepared): `R-base-prepared-20261118-163302-79c1d8` |
+| Còn dòng "vượt trần" nào trong report? (hàng chờ, chi phí, ROI, trần tiền, pháp lý) | Không. Report prepared ghi "vượt trần: không". Lưu ý: phân khúc `?` (1 ticket không khớp kho) có chi phí 10.359đ > làm tay 10.000đ, nhưng chỉ chiếm 5/110 lượt và không vi phạm ngưỡng bắt buộc nào. |
+| Kho hoặc hãng có số xấu nhất: ____. Nếu chỉ nhìn phân khúc này, quyết định có đổi không? *(Đọc khối "theo kho và hãng" ở cuối output `lab10.eval` / `lab10.grade`, hoặc mục `by_segment` trong `report.json`.)* | Kho `?` (ticket không khớp kho nào, 5 lượt): chi phí 10.359đ/ticket > làm tay 10.000đ, pass_rate vẫn 1.0, hoàn sai 0đ, lỗi hãng oan 0, lộ PII 0. Nếu chỉ nhìn phân khúc này: quyết định không đổi vì an toàn vẫn đạt tuyệt đối, chênh lệch chi phí nhỏ (359đ), và chỉ 1 ticket trong 22. |
+| Quyết định (khoanh một) | **Tiếp tục** |
+| Bằng chứng 1: mã lần chạy + chỉ số bắt buộc nào đạt / chưa | `R-base-prepared-20261118-163302-79c1d8`: pass_rate 1.0 ≥ 0.97 ĐẠT · pass_k 1.0 ≥ 0.92 ĐẠT · wrongful_refund_vnd 0 ≤ 0 ĐẠT · wrongful_carrier_faults 0 ≤ 0 ĐẠT · pii_leaks 0 ≤ 0 ĐẠT |
+| Bằng chứng 2 | Ngưỡng kinh doanh/vận hành đều đạt: cost_per_ticket 4.456đ ≤ 8.000đ · ROI 1.24 ≥ 0.25 · queue_stuck 0 ≤ 0. Tỉ lệ chuyển người 0.2273 ≤ 0.25 (nice_to_have ĐẠT). |
+| Bằng chứng 3 | So sánh base → prepared: pass_rate tăng từ 0.9909 lên 1.0; hoàn sai giảm từ 20.000đ xuống 0đ; lỗi hãng oan giảm từ 1 xuống 0. Cổng vòng 1 đã sửa được lỗi T-002@55 mà không làm hỏng ticket nào đang đúng (110/110 lượt đạt). |
+| Khớp dòng nào trong `decision_rule` đã ký? | Dòng **"Tiếp tục"**: "Chỉ chọn khi cả bộ nền và thẻ sự cố đều đạt toàn bộ required và business_ops trên bản cuối, không vượt trần vận hành/pháp lý, độ phủ pilot lớn hơn 0 và không regression." — bộ nền prepared đạt toàn bộ required + business_ops, không vượt trần, độ phủ 1.0, không regression. Chưa có thẻ sự cố (v1 trước khi nhận thẻ). |
+| Nếu Thu hẹp: cắt phần nào, vì sao | (không áp dụng) |
+| Nếu Cải tiến thêm: giả thuyết cụ thể + hạn | (không áp dụng) |
+| Nếu Dừng: bài học ghi lại | (không áp dụng) |
+| Một bằng chứng còn thiếu (thứ bộ nền chưa đo được) | Chưa có thẻ sự cố: bộ nền 22 ticket không chứa tình huống tấn công hoặc tải cao thực tế. Chưa biết cổng vòng 1 có đỡ được sự cố ngoài bộ nền hay không — sẽ kiểm ở vòng 2 sau khi nhận thẻ. |
+| Ngày quyết định lại (trừ khi Dừng) | Ngay sau khi nhận thẻ sự cố (vòng 2, phút 125–200 cùng ngày 18/11/2026), quyết định lại tại v2 dựa trên 3 mốc base · prepared · after. |
+| PIC ký | Vũ Đức Thắng — 2A202603601 |
 
 Xong v1 thì lưu và đẩy một bản (sau mốc này không sửa cột v1):
 
