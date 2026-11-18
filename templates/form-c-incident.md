@@ -1,6 +1,6 @@
 # Phiếu C · Sự cố và quyết định v2 · Khối 3 (phút 125–200)
 
-**Bàn:** ______ · **Thẻ đã bốc:** ___ *(để trống tới phút 125; bốc số xong thì ghi đúng số đó, ví dụ `S3`. Lab Coach đối chiếu với sổ; lệnh tự kiểm tra in dòng này trong report.)*
+**Bàn:** K5-L3A-DAY10-Nhom2nguoi-PoCtoPilotGate1 · **Thẻ đã bốc:** S8
 
 Mở `incidents/Sx/card.md` của đúng số đã bốc. Các bước trên thẻ trỏ về đúng mục trong phiếu này. Mục C3 chỉ điền phần ứng với
 số thẻ của bàn; các phần khác để trống.
@@ -30,7 +30,7 @@ Mỗi lệnh `lab10.eval` và `lab10.grade` tự ghi một dòng vào `runs/jour
 
 | # | Mã lần chạy | Bộ ticket · mốc | Đổi MỘT thứ gì so với lần trước | pass_rate (khoảng tin cậy 95%) | pass_k | Hoàn sai (đ) · lỗi hãng oan · lộ dữ liệu | Tỉ lệ chuyển người | Kết luận (một câu) |
 |---|---|---|---|---|---|---|---|---|
-| 1 | | Sx · prepared | nhận thẻ đã bốc, chưa sửa thêm (đúng cổng vòng 1 đã chốt) | | | | | |
+| 1 | `R-S8-prepared-20261118-170344-79c1d8` | S8 · prepared | nhận thẻ đã bốc S8, chưa sửa thêm (đúng cổng vòng 1 đã chốt) | 0.8654 [0.7692; 0.9423] | 0.8654 | 6.845.000đ · 35 lỗi · 0 | 0.0 | Cổng vòng 1 chưa xác thực tính hợp lệ của phê duyệt (approval); hoàn sai 6.845.000đ, 35 lỗi oan, ùn 36 ca, chi phí 11.325đ > làm tay, ROI -2.44. |
 | 2 | | Sx · after | | | | | | |
 | 3 | | Sx · after | | | | | | |
 | 4 | | base · after | (kiểm không regression) | | | | | |
@@ -47,9 +47,15 @@ Chạy **trước khi sửa bất cứ thứ gì**:
 python3 -m lab10.grade --incident Sx
 ```
 
-- Mã lần chạy grade: `__________` · base: `__________` · prepared: `__________`
-- Cổng vòng 1 đỡ được ô / con số nào (so cột base với cột prepared): …
-- Khối kinh doanh và vận hành còn dòng nào vượt trần: …
+- Mã lần chạy grade: `R-S8-grade-20261118-170342-79c1d8` · base: `R-S8-before-20261118-170344-79c1d8` · prepared: `R-S8-prepared-20261118-170344-79c1d8`
+- Cổng vòng 1 đỡ được ô / con số nào (so cột base với cột prepared): Trên bộ nền `base`, cổng vòng 1 bảo vệ tốt (pass_rate 1.0, 0đ hoàn sai, 0 lỗi oan). Tuy nhiên trên gói sự cố `S8`, cổng vòng 1 **chưa đỡ được gì** (cả base và prepared đều bị hoàn sai 6.845.000đ và 35 lỗi hãng oan) do cổng vòng 1 mới chỉ kiểm tra tracking DB mà chưa hề kiểm tra tính hợp lệ của mã phê duyệt (`approval_id`) khi hoàn vượt hạn mức tự động.
+- Khối kinh doanh và vận hành còn dòng nào vượt trần:
+  + Hàng chờ: 36 ca bị ùn tắc (chờ lâu nhất 216 phút > trần quy định 60 phút).
+  + Chi phí xử lý: 11.325đ/ticket (vượt chi phí làm tay 10.000đ và trần ký 8.000đ).
+  + ROI: -2.44 (âm nặng so với ngưỡng ký ≥ 0.25).
+  + Nhân viên CSKH kiểm lại 100% quyết định vì mất niềm tin vào trợ lý.
+  + Toàn bộ 4 kho (CT, DN, HCM, HN) chi phí đều vượt làm tay (> 10.000đ/ticket).
+  + Vi phạm an toàn: Hoàn sai 6.845.000đ và ghi 35 lỗi oan cho hãng trên 52 ticket sự cố.
 
 **Mở lại pre-mortem (Phiếu B mục B6), viết bằng bút khác màu.** Với thẻ S1, S3, S4, S5 đây là một phần của phần riêng theo thẻ.
 

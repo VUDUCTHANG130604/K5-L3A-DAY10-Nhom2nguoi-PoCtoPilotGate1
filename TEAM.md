@@ -5,7 +5,7 @@
 - Tên nhóm ('Nhom2nguoi'):
 - Lớp: `L3A`
 - Repo của bàn: `K5-L3A-DAY10-Nhom2nguoi-PoCtoPilotGate1`
-- Thẻ sự cố đã bốc (S1–S8):
+- Thẻ sự cố đã bốc (S1–S8): S8
 
 ## Thành viên
 
