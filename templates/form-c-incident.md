@@ -269,7 +269,7 @@ Vì sao có thể sai: …
 
 <a id="c6"></a>
 
-## C6 · Câu 3.4 · Fault tree TRƯỚC khi sửa (mã lần chạy: `__________`)
+## C6 · Câu 3.4 · Fault tree TRƯỚC khi sửa (mã lần chạy: `R-S8-prepared-20261118-170344-79c1d8`)
 
 **Khung tư duy.** Đi từ **tác hại** ngược về nguyên nhân, không đi từ lỗi mình tình cờ thấy. Mỗi tầng hỏi "điều gì phải xảy
 ra thì điều trên mới xảy ra", nối bằng **HOẶC** (một trong các nhánh là đủ) hoặc **VÀ** (phải đồng thời). Một biện pháp tốt
@@ -284,21 +284,26 @@ thường biến một nhánh HOẶC thành VÀ: tác hại chỉ còn xảy ra 
 Ít nhất hai nhánh ở hai tầng khác nhau (kỹ thuật, kinh doanh, con người); mỗi lá có bằng chứng (ticket@seed, trường dữ liệu, hoặc một dòng của report).
 
 ```
-[ĐỈNH] Tác hại: ______________________________ (cho ai: __________, đo bằng: __________)
+[ĐỈNH] Mất khả năng vận hành hoàn tiền đáng tin cậy: tiền hoàn sai, hãng bị ghi lỗi oan hoặc nhân viên phải kiểm tay toàn bộ
+       (cho ai: LogiX Finance, Trưởng ca Hạnh, CSKH, hãng; prepared: hoàn sai 6.845.000đ, 35 lỗi oan,
+        review 100%, 36 ca ùn/chờ max 216 phút, 11.325đ/ticket, ROI -2.44)
  └─ HOẶC
- ├─ [1] ______________________________ tầng: đầu vào / data / hành động / quyền hạn / vận hành / kinh doanh
- │ └─ vì: ________________________ bằng chứng: ticket ______@seed ____
- ├─ [2] ______________________________ tầng: ______
- │ └─ vì: ________________________ bằng chứng: ticket ______@seed ____
- └─ [3] ______________________________ tầng: ______
- └─ vì: ________________________ bằng chứng: ______
+ ├─ [1] Lệnh hoàn dùng mã phê duyệt không hợp lệ / vượt quyền (tầng quyền hạn và hành động)
+ │ └─ vì: agent lấy mã rồi ghi tiền mà không kiểm trạng thái, ticket, hạn dùng và max_vnd;
+ │        S8-02@11 dùng A-2802 hết hạn, S8-03@11 chi 235.000đ với A-2803 chỉ duyệt 150.000đ
+ ├─ [2] Hoàn tự động chia nhỏ qua nhiều đơn vượt trần của một khách (tầng kinh doanh / dữ liệu tích lũy)
+ │ └─ vì: không cộng hoàn tự động theo customer_id trong ngày; S8-40..42 của C-16 đã là 282.000đ,
+ │        S8-43 đề nghị thêm 104.000đ (tổng 386.000đ > trần 300.000đ)
+ └─ [3] Mất lòng tin kéo theo kiểm tay và ùn hàng (tầng con người / vận hành)
+   └─ vì: khoản dùng approval sai làm recheck_auto_decisions_pct thành 100%;
+          report prepared: 36 ca ùn, chờ lâu nhất 216 phút, 11.325đ/ticket, ROI -2.44
 ```
 
 | Lá | Specification bị vi phạm (phần mềm phải làm gì) | Giả định môi trường đã sai (thế giới ngoài phần mềm) |
 |---|---|---|
-| [1] | | |
-| [2] | | |
-| [3] | | |
+| [1] | Chỉ ghi hoàn vượt auto_limit khi mã duyệt còn `valid`, chưa hết hạn, đúng ticket/order/customer và `max_vnd >= amount_vnd`. | Mã tìm thấy theo đơn/khách thì vẫn hiệu lực và đúng quyền cho ticket hiện tại. |
+| [2] | Tổng hoàn tự động của một `customer_id` trong ngày không vượt `ops_limits.max_auto_refund_per_customer_per_day_vnd` qua mọi đơn. | Mỗi ticket/đơn độc lập nên không cần đối chiếu lịch sử hoàn cùng khách. |
+| [3] | Khi có approval không hợp lệ, phải chặn trước khi ghi và lưu lý do kiểm toán được; quy trình review phải có năng lực xử lý. | Nhân viên sẽ tiếp tục tin quyết định tự động dù có khoản duyệt sai; hàng chờ vẫn xử lý kịp khi cả ca kiểm tay. |
 
 **Ví dụ mẫu một nhánh (bộ nền, đừng chép):** đỉnh "hãng VNX nhận lỗi oan cho đơn O-1002" ← [1] agent dùng độ trễ 5 ngày ←
 model lấy số trong ticket đè lên DB (`T-002@55`). Spec bị vi phạm: độ trễ dùng để ghi lỗi phải lấy từ tracking DB. Giả định
@@ -321,9 +326,9 @@ python3 -m lab10.grade --incident Sx
 
 | Nhánh fault tree | Nguyên nhân | Chỗ sửa (hàm + nhánh trong `guards.py`, hoặc khoá trong `operating_gates.json`) | Tầng (phát hiện / chặn / giới hạn thiệt hại / vận hành) | GIẢM khả năng hay NGĂN hẳn? Vì sao | Mã lần chạy sau khi sửa |
 |---|---|---|---|---|---|
-| [1] | | | | | |
-| [2] | | | | | |
-| [3] | | | | | |
+| [1] | Agent dùng mã sai ticket, người duyệt sai, hết hạn/đã thu hồi hoặc vượt `max_vnd`. | `lab10/guards.py`: `_approval_problem` và `write_gate` nhánh `issue_refund`; đối chiếu mã với ticket/order/customer, approver được chỉ định, `status`, `expires_at`, `max_vnd`; thiếu mã khi vượt `auto_limit_vnd` thì chuyển người. | Chặn; giới hạn thiệt hại | Ngăn các mã sai theo dữ liệu `approvals` hiện có vì gate chạy trước khi ghi sổ; còn phụ thuộc bảng approvals là nguồn trạng thái đúng. | `R-S8-after-20261118-173547-c522a1` |
+| [2] | Các khoản tự động qua nhiều đơn cộng dồn vượt trần/ngày/khách. | `lab10/guards.py`: `write_gate` nhánh `issue_refund`; cộng `ledger_rows(customer_id=...)` chưa có `approval_id` rồi so với `ops_limits.max_auto_refund_per_customer_per_day_vnd`. | Chặn; giới hạn thiệt hại | Ngăn vượt trần nếu các khoản trong ngày đều có trong ledger; không bao phủ giao dịch ngoài ledger hoặc dữ liệu khách bị tách mã. | `R-S8-after-20261118-173547-c522a1` |
+| [3] | Một khoản duyệt sai khiến nhân viên mất tin tưởng, kiểm tay toàn bộ và ùn hàng. | Không thêm nhánh code riêng: chặn nguyên nhân approval ở [1]; quy trình hiện có trong `config/operating_gates.json` bật `decision_note`, trưởng ca `NV-HANH`, kiểm mẫu 10%. | Vận hành | Giảm khả năng; report sau sửa còn 11 ca/ngày vào hàng chờ nhưng chờ lâu nhất 5 phút, 0 ca ùn. Nếu phát sinh lỗi ngoài hai nhánh đã chặn, niềm tin và hàng chờ vẫn có thể xấu đi. | `R-S8-after-20261118-173547-c522a1` |
 
 ---
 
@@ -349,23 +354,23 @@ Thẻ S5 dùng mục này cho một con số kinh doanh: chi phí mỗi ticket t
 
 <a id="c9"></a>
 
-## C9 · Câu 3.7 · Fault tree SAU khi sửa (mã lần chạy: `__________`)
+## C9 · Câu 3.7 · Fault tree SAU khi sửa (mã lần chạy: `R-S8-grade-20261118-173554-c522a1`)
 
 Vẽ lại cây ở C6. Ở mỗi nhánh đã xử lý, thêm một nút `VÀ [gate … hỏng]` và ghi:
 
 ```
-[ĐỈNH] ______________________________
+[ĐỈNH] Mất khả năng vận hành hoàn tiền đáng tin cậy (after: không hoàn sai/ghi lỗi oan; review 10%, 0 ca ùn)
  └─ HOẶC
- ├─ [1] ______________ VÀ [gate ______ hỏng]
- ├─ [2] ______________ VÀ [gate ______ hỏng]
- └─ [3] ______________ (còn hở?)
+ ├─ [1] Mã approval sai vẫn được ghi VÀ [gate kiểm tra phạm vi/trạng thái/hạn mức hỏng]
+ ├─ [2] Hoàn tự động vượt 300.000đ/khách/ngày VÀ [gate cộng dồn ledger/ops_limits hỏng]
+ └─ [3] Review queue quá tải khi dữ liệu ngoài nguồn sự thật hoặc lượng việc vượt công suất (còn hở)
 ```
 
 | Nhánh | Gate (hàm trong `guards.py` / khoá config / metric trong `monitors.py`) | Tầng gate (phát hiện / chặn / giới hạn thiệt hại / vận hành) | Giảm hay ngăn? Vì sao | Nhánh còn hở |
 |---|---|---|---|---|
-| [1] | | | | |
-| [2] | | | | |
-| [3] | | | | |
+| [1] | `write_gate` → `_approval_problem` | Chặn | Ngăn mã hết hạn, revoked/used, sai approver/ticket/order/customer hoặc không đủ `max_vnd`; after 0đ hoàn sai, 0 lỗi hãng oan. | Nếu nguồn approvals ghi `valid` nhưng trạng thái thực đã bị thu hồi/cập nhật trễ thì guard không biết. |
+| [2] | `write_gate` → `ledger_rows` + `ops_limits` | Chặn; giới hạn thiệt hại | Ngăn lệnh tự động làm tổng trong ledger vượt trần/ngày/khách; S8-40..42 được hoàn 282.000đ, S8-43/44 được chuyển người. | Khoản hoàn thủ công/kênh khác không ghi vào ledger hoặc khách dùng nhiều định danh có thể bị bỏ sót. |
+| [3] | `config/operating_gates.json`: ghi chú quyết định, lấy ý kiến trưởng ca, kiểm mẫu và stop condition hàng chờ | Vận hành | Giảm khả năng tái diễn đình trệ; sau sửa S8 review còn 10%, chờ tối đa 5 phút, 0 ca ùn. Không ngăn được đột biến ticket hay sự cố ngoài lab. | Còn phụ thuộc nhân sự trực và dữ liệu vận hành thật; theo dõi SLA 60 phút và dừng/tắt tự động nếu vượt ngưỡng. |
 
 ---
 

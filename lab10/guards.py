@@ -37,6 +37,36 @@ def pre_guard(ctx):
     return Verdict.allow()
 
 
+def _approval_problem(ctx, approval_id, action, order, amount_vnd):
+    approvals = ctx.tools.lookup_approvals(approval_id=approval_id)
+    if len(approvals) != 1:
+        return "không tìm thấy đúng một mã phê duyệt"
+
+    approval = approvals[0]
+    if approval.get("status") != "valid":
+        return "mã phê duyệt không còn hiệu lực"
+    if (action.get("ticket_id") != ctx.ticket.get("ticket_id")
+            or approval.get("ticket_id") != ctx.ticket.get("ticket_id")
+            or action.get("order_id") != ctx.ticket.get("order_id")
+            or approval.get("order_id") != action.get("order_id")
+            or approval.get("customer_id") != order.get("customer_id")
+            or order.get("customer_id") != ctx.ticket.get("customer_id")):
+        return "mã phê duyệt không khớp ticket, đơn hoặc khách hàng"
+    approver_id = ctx.gates.get("operations", {}).get("approver_id")
+    if approver_id and approval.get("approver_id") != approver_id:
+        return "mã phê duyệt không do người duyệt được chỉ định cấp"
+    max_vnd = approval.get("max_vnd")
+    if isinstance(max_vnd, bool) or not isinstance(max_vnd, int) or max_vnd < amount_vnd:
+        return "số tiền vượt hạn mức của mã phê duyệt"
+    try:
+        expired = H.d(approval["expires_at"]) < H.d(ctx.as_of)
+    except (KeyError, TypeError, ValueError):
+        return "ngày hết hạn của mã phê duyệt thiếu hoặc không hợp lệ"
+    if expired:
+        return "mã phê duyệt đã hết hạn"
+    return None
+
+
 def write_gate(ctx, action):
     # action = {"tool": "issue_refund", "ticket_id":..., "order_id":..., "amount_vnd":..., "payer":..., ...}
     tool = action["tool"]
@@ -51,16 +81,52 @@ def write_gate(ctx, action):
         order = ctx.tools.lookup_order(action.get("order_id"))
         if order is None or not order.get("parcels"):
             return Verdict.escalate("không tìm thấy đơn để xác minh quyền hoàn")
+        if (action.get("order_id") != ctx.ticket.get("order_id")
+                or order.get("customer_id") != ctx.ticket.get("customer_id")):
+            return Verdict.escalate("đơn không khớp ticket hoặc chủ đơn")
         parcel = H.ticket_parcel(order, ctx.ticket, ctx.as_of)
         delay = H.db_delay_days(parcel, ctx.as_of)
         allowed = H.entitlement_vnd(policy, order, delay, parcel.get("delay_cause"))
         if allowed <= 0:
             return Verdict.deny("tracking và chính sách không xác nhận quyền hoàn")
+        requested = action.get("amount_vnd")
+        if isinstance(requested, bool) or not isinstance(requested, int) or requested <= 0:
+            return Verdict.escalate("số tiền hoàn không hợp lệ")
         if action.get("payer") != "LOGIX":
             return Verdict.escalate("người trả tiền không phải LogiX; cần người duyệt")
-        if action.get("amount_vnd", 0) > allowed:
-            return Verdict.modify("giới hạn theo tracking và chính sách hiện hành",
-                                  amount_vnd=allowed, basis="policy")
+        amount = min(requested, allowed)
+        changes = {}
+        if amount != requested:
+            changes.update(amount_vnd=amount, basis="policy")
+
+        auto_limit = policy.get("auto_limit_vnd")
+        if isinstance(auto_limit, bool) or not isinstance(auto_limit, int) or auto_limit < 0:
+            return Verdict.escalate("không xác minh được hạn mức hoàn tự động")
+
+        approval_id = action.get("approval_id")
+        if approval_id:
+            problem = _approval_problem(ctx, approval_id, action, order, amount)
+            if problem:
+                ctx.log("approval_rejected", approval_id=approval_id, reason=problem)
+                return Verdict.escalate("phê duyệt không hợp lệ: " + problem)
+        elif amount > auto_limit:
+            return Verdict.escalate("hoàn vượt hạn mức tự động nhưng không có mã phê duyệt")
+        else:
+            customer_limit = ctx.tools.ops_limits().get("max_auto_refund_per_customer_per_day_vnd")
+            if (isinstance(customer_limit, bool) or not isinstance(customer_limit, int)
+                    or customer_limit < 0):
+                return Verdict.escalate("không xác minh được trần hoàn tự động mỗi khách mỗi ngày")
+            refunded_today = sum(
+                row["amount_vnd"]
+                for row in ctx.tools.ledger_rows(customer_id=order["customer_id"])
+                if not row.get("approval_id")
+            )
+            if refunded_today + amount > customer_limit:
+                ctx.log("customer_daily_refund_cap", customer_id=order["customer_id"],
+                        limit_vnd=customer_limit, refunded_today_vnd=refunded_today, asked_vnd=amount)
+                return Verdict.escalate("vượt trần hoàn tự động tích lũy mỗi khách trong ngày")
+        if changes:
+            return Verdict.modify("giới hạn theo tracking và chính sách hiện hành", **changes)
 
     if tool == "file_carrier_fault":
         order = ctx.tools.lookup_order(action.get("order_id"))
