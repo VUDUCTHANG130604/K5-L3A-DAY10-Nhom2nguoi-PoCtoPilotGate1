@@ -472,7 +472,7 @@ Ghi các dòng đổi sau sự cố. Mỗi dòng vẫn phải có một PIC có 
 | 6 — Chi phí | Xong | S8 2.952đ/ROI 2.39; bộ nền 4.456đ/ROI 1.24, dưới ngưỡng tổng thể đã ký. Phân khúc ? còn là rủi ro tại C10. | Mai Tuấn Anh |
 | 7 — Vận hành | Xong | Mock: 1 người/6 ca giờ, mẫu 10%, trust đạt, review tổng 21.15%, recheck_rate 7.69%; runbook có trách nhiệm/dừng. Chưa coi là đã diễn tập kênh thật. | Vũ Đức Thắng |
 | 8 — Con người/pháp lý | Xong | Mock after: lỗi hãng oan/PII=0, Hạnh giữ quyền; Oanh nhận đối soát. Thiệt hại của lần mô phỏng trước không phải giao dịch thật cần thu hồi. | Vũ Đức Thắng |
-| 9 — Quyết định | Chưa | C12 đề xuất Cải tiến thêm do integrity còn thiếu file; PIC cần xác nhận. B8 lịch sử giữ nguyên, không hồi tố thời điểm. | Mai Tuấn Anh |
+| 9 — Quyết định | Xong | C12 ghi Cải tiến thêm do integrity còn thiếu file; PIC chịu trách nhiệm giải trình và theo dõi việc bổ sung gói chính thức. B8 lịch sử giữ nguyên, không hồi tố thời điểm. | Mai Tuấn Anh |
 
 ### Runbook 4 · Sau sự cố trên thẻ (vòng 2)
 
@@ -509,7 +509,7 @@ Cột v1 nằm ở Phiếu B mục B8; không sửa cột đó.
 | Mã lần chạy dùng làm bằng chứng | Grade `R-S8-grade-20261118-205236-536bf2`; S8 base `R-S8-before-20261118-205240-536bf2`, prepared `R-S8-prepared-20261118-205240-536bf2`, after `R-S8-after-20261118-205241-536bf2`. Đây là phép đo bổ sung sau sửa, không thay thời điểm C1. |
 | Còn dòng "vượt trần" nào trong report? (hàng chờ, chi phí, ROI, trần tiền, pháp lý) | Không còn trên các suite đã chạy; mọi required/business_ops đạt, coverage=1. Grade tổng vẫn FAIL do integrity thiếu 28 file, chưa đủ điều kiện nghiệm thu. |
 | Kho hoặc hãng có số xấu nhất: ____. Nếu chỉ nhìn phân khúc này, quyết định có đổi không? | S8 sau sửa: DN chi phí cao nhất 3.200đ/ticket, mọi hãng pass=1 và gây hại=0; trước sửa DN hoàn sai 4.625.000đ, VNX 3.465.000đ. Bộ nền nhóm ? còn 10.359đ/ticket, nếu xét riêng chưa hiệu quả theo trần 8.000đ. Đã ghi rủi ro C10, chưa quyết định mở pilot cho nhóm này. |
-| Quyết định (khoanh một) | **Cải tiến thêm** — đề xuất hồ sơ để PIC xác nhận; chưa mở pilot thật. |
+| Quyết định (khoanh một) | **Cải tiến thêm** — quyết định ghi trong hồ sơ hoàn thiện theo yêu cầu trưởng nhóm; chưa mở pilot thật. |
 | Bằng chứng 1: mã lần chạy + chỉ số bắt buộc nào đạt / chưa | `R-S8-grade-20261118-205236-536bf2`: S8 và bộ nền after pass_rate=pass_k=1.0; hoàn sai, lỗi hãng oan, PII=0; không regression. |
 | Bằng chứng 2 | S8 after: 2.952đ/ticket ≤8.000đ, ROI 2.39 ≥0.25, chờ max 5 phút ≤60, ca ùn 0, tổng tự động ngày 282.000đ ≤2.000.000đ; bộ nền 4.456đ, ROI 1.24, ùn 0. |
 | Bằng chứng 3 | Visible/regression/monitor đều đạt; criteria/checkpoint còn nguyên. Integrity=false chỉ vì 28 file thẻ không có; 23 lỗi CRLF đã được khôi phục đúng hash. Nguồn cards trả Repository not found nên chưa đủ bằng chứng toàn vẹn. |
@@ -518,13 +518,13 @@ Cột v1 nằm ở Phiếu B mục B8; không sửa cột đó.
 | Nếu Cải tiến thêm: giả thuyết cụ thể (nhánh nào của fault tree) + hạn | Tiến phối hợp Thắng lấy đủ gói chính thức/xác nhận tương thích manifest, bổ sung report máy khác; giả thuyết integrity còn thiếu do gói phát hành chưa đủ, không phải 23 file có sẵn bị sửa nội dung. Chạy grade/collect lại trước 18:00 ngày 19/11/2026 GMT+7. Tuấn Anh rà nhóm ? và giả định pilot; Linh giữ gate, không sửa file khóa. |
 | Nếu Dừng: bài học ghi lại | Chưa chọn Dừng: đã có bản sửa đạt bộ thử nhìn thấy; không mở pilot khi chưa gỡ chướng ngại toàn vẹn. |
 | Ngày quyết định lại (trừ khi Dừng) | Trước 18:00 ngày 19/11/2026 GMT+7, hoặc ngay khi có gói chính thức và grade mới; không tự gia hạn/ngầm thay tiêu chí. |
-| PIC ký | Vũ Đức Thắng — 2A202603601; người cần xác nhận đề xuất v2, chưa ghi nhận ký duyệt thực tế. |
+| PIC ký | Vũ Đức Thắng — 2A202603601, PIC chịu trách nhiệm hồ sơ. Nội dung được trợ lý hỗ trợ lập theo yêu cầu trưởng nhóm; không tạo chữ ký tay hoặc chứng nhận cá nhân độc lập. |
 
 **Chỉ ở v2**
-- Đổi từ v1 Tiếp tục thành đề xuất Cải tiến thêm. Đã sửa tác hại S8 nhưng integrity còn thiếu file chính thức; không hồi tố sửa B8.
+- Đổi từ v1 Tiếp tục thành Cải tiến thêm trong hồ sơ. Đã sửa tác hại S8 nhưng integrity còn thiếu file chính thức; không hồi tố sửa B8.
 - Report tự kiểm tra: `R-S8-grade-20261118-205236-536bf2`; ô còn đỏ: integrity. Hidden không có trên máy, không tuyên bố đã đạt test ẩn.
 - Prepared đỡ 0đ hoàn sai/0 lỗi hãng/0 ca ùn trên S8; sau sửa, 6.845.000đ → 0, 35 lỗi → 0, 36 ca ùn → 0, chờ 216 → 5 phút, kiểm lại 100% → 10%.
-- Report cho phép cân nhắc Tiếp tục về các ngưỡng, nhưng kết luận tổng là FAIL do toàn vẹn; nhóm đề xuất chưa mở pilot cho tới khi gỡ lỗi này.
+- Report cho phép cân nhắc Tiếp tục về các ngưỡng, nhưng kết luận tổng là FAIL do toàn vẹn; hồ sơ ghi chưa mở pilot cho tới khi gỡ lỗi này.
 - Chưa đo concurrency, trạng thái phê duyệt cập nhật trễ, công người thật, tải đột biến và chi phí thực theo kho; bộ mock không chứng minh được các điều đó.
 
 **Ba dòng bắt buộc** (khớp submission/submission.json)

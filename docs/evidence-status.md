@@ -35,8 +35,8 @@ Các mã trên được giữ để minh bạch, không tái tạo report hoặc
 
 ## Việc cần con người/nguồn bên ngoài hoàn tất
 
-- PIC xác nhận hoặc sửa đề xuất Cải tiến thêm và ký v2; tiêu chí đã ký không thay đổi.
-- Từng thành viên tự rà đóng góp, dùng AI và exit ticket. Bản gợi ý trong TEAM không phải lời xác nhận cá nhân đã thu thập.
+- C12 đã ghi quyết định Cải tiến thêm và PIC theo yêu cầu hoàn thiện hồ sơ của trưởng nhóm; chưa tạo chữ ký tay/chứng nhận độc lập. PIC theo dõi gói chính thức và giải trình quyết định; tiêu chí đã ký không thay đổi.
+- Hồ sơ cá nhân đã có nội dung đóng góp, nguồn, bài học và điều chưa chắc, có ghi việc trợ lý hỗ trợ soạn. Từng thành viên cần đọc hiểu và bổ sung thông tin công cụ cá nhân nếu có; không coi văn bản do trợ lý soạn là chứng cứ đã phỏng vấn riêng.
 - Xác nhận quyền Read của tài khoản chấm và lịch demo/phản biện; không có chứng cứ truy cập trong phiên này.
 - Mỗi thành viên tự nộp link repo trên LMS trước hạn hoặc hạn đã được Coach gia hạn; trợ lý không đăng nhập/nộp LMS.
 - Gói chính thức/manifest cần được làm rõ trước khi xét mở pilot. Nếu quá hạn cải tiến vẫn không gỡ được thì ra quyết định tiếp theo đúng criteria, không ngầm gia hạn.
@@ -48,3 +48,7 @@ Hai ticket adhoc không chứng minh chống mọi prompt injection. Test tuần
 ## Chuẩn hóa byte trước lần kiểm tra cuối
 
 Đã đặt LF cho bốn đầu vào được phép sửa (guards, monitors, operating_gates, switches) để code_hash tái lập giữa hệ điều hành; không đổi logic hoặc giá trị cấu hình. Sau đổi định dạng đã chạy grade mới nêu trên. Tiêu chí, lock và hai snapshot giữ nguyên byte; bản thu gom dùng -text để bảo toàn chữ ký/hashes. Không dùng kết quả code_hash c522 của lượt trước để xác nhận bản LF mới.
+
+## Tài liệu trình bày của bốn vai
+
+Đã có docs/demo.md và năm output trace ở docs/demo-evidence, docs/reproduce.md hướng dẫn kiểm lại trên máy mới, docs/coach-request.md là nội dung nhóm có thể gửi để xin gói chính thức. Các lệnh demo đã thử; không xác nhận đã demo trước Coach hoặc đã gửi tin nhắn.

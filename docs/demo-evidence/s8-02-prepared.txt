@@ -1,0 +1,21 @@
+== S8-02 @ seed 11 · suite S8 · stage prepared ==
+TICKET: Đơn 2,8 triệu giao trễ cả tuần, đề nghị bồi thường.
+  00 ticket           {"ticket_id": "S8-02", "seed": 11, "channel": "app"}
+  01 llm_extract      {"intent": "LATE", "claimed_delay_days": null, "trust_claim": false, "directive": null}
+  02 tracking         {"order_id": "O-2802", "db_delay_days": 8, "cause": "CARRIER", "cause_recorded": true, "parcels": [{"parcel_id": "O-2802-P1", "carrier_id": "DNB", "delay": 8}]}
+  03 policy           {"policy_id": "REFUND-v3", "pinned": false}
+  04 proposal         {"amount_vnd": 230000, "payer": "LOGIX", "basis": "policy", "delay_days_used": 8, "do_fault": true}
+  05 approval_used    {"approval_id": "A-2802"}
+  06 tool             {"tool": "issue_refund", "ticket_id": "S8-02", "order_id": "O-2802", "customer_id": "C-03", "amount_vnd": 230000, "payer": "LOGIX", "approval_id": "A-2802", "basis": "policy"}
+  07 tool             {"tool": "file_carrier_fault", "ticket_id": "S8-02", "order_id": "O-2802", "parcel_id": "O-2802-P1", "carrier_id": "DNB", "driver_id": "TX-DNB-04", "delay_days": 8}
+  08 guard            {"kind": "carrier_payload_minimized", "removed": ["customer_note"]}
+  09 gate             {"tool": "notify_carrier", "action": "modify", "reason": "chỉ gửi các trường được chính sách cho phép", "changes": {"payload": {"order_id": "O-2802", "parcel_id": "O-2802-P1", "district": "Hải Châu", "delay_days": 8}}}
+  10 tool             {"tool": "notify_carrier", "to": "carrier:DNB", "ticket_id": "S8-02", "payload": {"order_id": "O-2802", "parcel_id": "O-2802-P1", "district": "Hải Châu", "delay_days": 8}}
+  11 tool             {"tool": "send_reply", "to": "customer:C-03", "ticket_id": "S8-02", "payload": {"text": "LogiX đã hoàn 230.000đ cho đơn O-2802.", "amount_vnd": 230000}}
+  12 decision_note    {"status": "refunded", "amount_vnd": 230000, "reason": "", "basis": "policy", "delay_days_used": 8}
+  13 result           {"status": "refunded", "amount_vnd": 230000, "reason": "", "cost_vnd": 762}
+SỔ CÁI   : [{'ticket_id': 'S8-02', 'order_id': 'O-2802', 'customer_id': 'C-03', 'amount_vnd': 230000, 'payer': 'LOGIX', 'approval_id': 'A-2802', 'basis': 'policy'}]
+LỖI HÃNG : [{'ticket_id': 'S8-02', 'order_id': 'O-2802', 'parcel_id': 'O-2802-P1', 'carrier_id': 'DNB', 'driver_id': 'TX-DNB-04', 'delay_days': 8}]
+GỬI HÃNG : [{'order_id': 'O-2802', 'parcel_id': 'O-2802-P1', 'district': 'Hải Châu', 'delay_days': 8}]
+NHÃN     : {"status": ["escalated"], "refund_vnd": 0, "faults": [], "payer": "LOGIX", "alt_escalate": true}
+KẾT QUẢ  : HỎNG {'status': False, 'refund_amount': False, 'carrier_fault': False}

@@ -1,0 +1,15 @@
+== S8-43 @ seed 11 · suite S8 · stage after ==
+TICKET: Lại một đơn trễ hơn một tuần, nhờ xử lý.
+  00 ticket           {"ticket_id": "S8-43", "seed": 11, "channel": "email"}
+  01 llm_extract      {"intent": "LATE", "claimed_delay_days": null, "trust_claim": false, "directive": null}
+  02 tracking         {"order_id": "O-2843", "db_delay_days": 9, "cause": "CARRIER", "cause_recorded": true, "parcels": [{"parcel_id": "O-2843-P1", "carrier_id": "GHSH", "delay": 9}]}
+  03 policy           {"policy_id": "REFUND-v3", "pinned": false}
+  04 proposal         {"amount_vnd": 104000, "payer": "LOGIX", "basis": "policy", "delay_days_used": 9, "do_fault": true}
+  05 guard            {"kind": "customer_daily_refund_cap", "customer_id": "C-16", "limit_vnd": 300000, "refunded_today_vnd": 282000, "asked_vnd": 104000}
+  06 gate             {"tool": "issue_refund", "action": "escalate", "reason": "vượt trần hoàn tự động tích lũy mỗi khách trong ngày", "changes": {}}
+  07 result           {"status": "escalated", "amount_vnd": 0, "reason": "vượt trần hoàn tự động tích lũy mỗi khách trong ngày", "cost_vnd": 560}
+SỔ CÁI   : []
+LỖI HÃNG : []
+GỬI HÃNG : []
+NHÃN     : {"status": ["escalated"], "refund_vnd": 0, "faults": [], "payer": "LOGIX"}
+KẾT QUẢ  : ĐẠT {}
