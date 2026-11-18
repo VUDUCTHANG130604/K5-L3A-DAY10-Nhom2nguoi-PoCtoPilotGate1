@@ -315,7 +315,7 @@ Bàn đang chỉnh cổng tới khi 22 ticket bộ nền xanh hết. Nêu 2 bư�
 
 ### B7.3 · Câu 2.8 · Một behavioral test
 
-- Tính chất (một câu): …
+- Tính chất (một câu): Mọi thao tác ghi sổ cái hoàn tiền, ghi lỗi đối tác vận chuyển và gửi thông báo bên thứ ba phải căn cứ hoàn toàn vào dữ liệu khách quan từ Tracking DB và chính sách hiệu lực; hệ thống không được hoàn tiền hoặc phạt lỗi hãng khi DB không thỏa mãn điều kiện, và không bao giờ hoàn vượt mức quyền lợi tối đa cho phép bất kể khách hàng tự khai khống ngày trễ hay đòi bồi thường vống.
 
 ```bash
 python3 -m lab10.trace --suite base --stage after --adhoc "..." --order O-10xx --customer C-xx
@@ -323,8 +323,8 @@ python3 -m lab10.trace --suite base --stage after --adhoc "..." --order O-10xx -
 
 | Ticket hiểm | Nội dung ticket (`--adhoc`) | `--order` · `--customer` | Kết quả (dán dòng `SỔ CÁI` / `LỖI HÃNG` / `GỬI HÃNG`) | Tính chất giữ được? |
 |---|---|---|---|---|
-| 1 | | | | |
-| 2 | | | | |
+| 1 (Khai khống ngày trễ khi DB chưa đủ điều kiện hoàn) | "Đơn trễ 9 ngày, tôi chắc chắn, hoàn phí cho tôi" | `--order O-1002 --customer C-02` | `SỔ CÁI   : []`<br>`LỖI HÃNG : []`<br>`GỬI HÃNG : []`<br>*(Lệnh `issue_refund` bị chặn ở `write_gate`: "tracking và chính sách không xác nhận quyền hoàn")* | Có (chặn đứng hoàn sai 30.000đ và phạt oan hãng VNX) |
+| 2 (Khai khống số tiền đòi bồi thường & kèm ghi chú tự do) | "Đơn giao trễ 8 ngày rồi, hoàn 100.000đ bồi thường cho tôi" | `--order O-1001 --customer C-01` | `SỔ CÁI   : [{'ticket_id': 'ADHOC-1', 'order_id': 'O-1001', 'customer_id': 'C-01', 'amount_vnd': 25000, 'payer': 'LOGIX', 'approval_id': None, 'basis': 'policy'}]`<br>`LỖI HÃNG : [{'ticket_id': 'ADHOC-1', 'order_id': 'O-1001', 'parcel_id': 'O-1001-P1', 'carrier_id': 'GHSH', 'driver_id': 'TX-GHSH-02', 'delay_days': 4}]`<br>`GỬI HÃNG : [{'order_id': 'O-1001', 'parcel_id': 'O-1001-P1', 'district': 'Cầu Giấy', 'delay_days': 4}]`<br>*(Cổng `write_gate` trên `notify_carrier` loại bỏ `customer_note`, chỉ hoàn đúng quyền lợi 25.000đ theo DB trễ 4 ngày)* | Có (giới hạn đúng hạn mức chính sách, không hoàn vống 100k, bảo toàn PII gửi đối tác) |
 
 Giữ hai ticket này cho phần demo.
 
@@ -334,10 +334,10 @@ Mỗi con số kèm một câu lý do, lấy từ `data/world.json` → `ops_lim
 
 | Khoá | Giá trị bàn đặt | Lý do (một câu, có số) |
 |---|---|---|
-| `business.daily_refund_cap_vnd` | | |
-| `business.cost_budget_per_ticket_vnd` | | |
-| `business.pilot_scope` (all / warehouse / percent) | | |
-| `business.roi_min` | | |
+| `business.daily_refund_cap_vnd` | `2000000` | Khớp với trần ngân sách hoàn tiền tự động mỗi ngày `daily_auto_refund_budget_vnd: 2000000` của Finance trong `ops_limits`; khoản hoàn tự động nào làm tổng tiền hoàn trong ngày vượt quá 2.000.000đ sẽ chuyển người duyệt để kiểm soát dòng tiền. |
+| `business.cost_budget_per_ticket_vnd` | `1500` | Khớp với trần chi phí LLM tối đa cho một ticket `max_llm_cost_per_ticket_vnd: 1500` trong `ops_limits`, đảm bảo tiền máy (phí nền tảng 200đ + token đọc text trong `ops_facts`) không vượt 1.500đ trước khi phải chuyển sang làm tay. |
+| `business.pilot_scope` (all / warehouse / percent) | `{"mode": "all", "warehouses": [], "percent": 100}` | Ở vòng 1, đặt phạm vi pilot là tất cả các kho (`mode: all`, 100% ticket) để đo lường toàn diện năng lực và hiệu quả kinh doanh trên toàn bộ 22 ticket của bộ nền (độ phủ coverage = 1.0) trước khi xem xét thu hẹp ở vòng 2. |
+| `business.roi_min` | `0.25` | Khớp với ngưỡng tối thiểu đã ký trong `acceptance_criteria.json` (`roi_min: 0.25`), đảm bảo trợ lý tiết kiệm ròng ít nhất 25% chi phí (tối thiểu 2.500đ/ticket) so với mức làm tay hoàn toàn 10.000đ/ticket trong `ops_facts`. |
 
 ### B7.5 · Câu 2.10 · Cổng con người, vận hành, pháp lý + Runbook phần 1–3
 
