@@ -255,15 +255,33 @@ Bắt buộc: ít nhất ba dòng, trong đó **một dòng là nhánh bàn chư
 
 ### Câu 3.2 · Một specification mà nếu bị vi phạm thì gây ra tác hại trên thẻ
 
-Kiểm được bằng code hoặc bằng một con số trong report: …
+Kiểm được bằng code hoặc bằng một con số trong report:
+**Quy tắc an toàn giao dịch hoàn tiền có phê duyệt (Approval-bound Refund Specification):**
+Hệ thống chỉ được phép thực hiện hành động ghi hoàn tiền (`issue_refund`) vượt hạn mức tự động (`amount_vnd > auto_limit_vnd`, mặc định 200.000đ) khi và chỉ khi có một mã phê duyệt (`approval_id`) hợp lệ thoả mãn đồng thời 5 điều kiện:
+1. **Trạng thái hợp lệ:** Mã tồn tại trong cơ sở dữ liệu `approvals` và có `status == "valid"`.
+2. **Còn thời hạn hiệu lực:** Thời điểm xử lý chưa vượt quá hạn dùng (`expires_at >= current_time`).
+3. **Đúng phạm vi gán quyền:** Khớp chính xác `approval.ticket_id == ctx.ticket_id`, `approval.order_id == ctx.order_id`, và `approval.customer_id == ctx.customer_id`.
+4. **Đúng thẩm quyền người duyệt:** `approver_staff_id` thuộc danh sách nhân sự được phân quyền duyệt (`staff`) và còn đang công tác.
+5. **Không vượt trần hạn mức phê duyệt:** Số tiền đề xuất hoàn không vượt quá trần được duyệt (`amount_vnd <= approval.max_vnd`).
 
-Kiểm bằng gì (hàm trong `guards.py`, dòng report nào): …
+Nếu thiếu mã duyệt hoặc vi phạm bất kỳ điều kiện nào trong 5 điều kiện trên, hệ thống **bắt buộc phải từ chối ghi hoàn tự động** và chuyển trạng thái ticket sang hàng chờ người duyệt (`escalated`).
+
+Kiểm bằng gì (hàm trong `guards.py`, dòng report nào):
+- **Bằng code:** Hàm `write_gate(ctx, action)` kết hợp hàm bổ trợ `_approval_problem(ctx, action)` trong [guards.py](file:///c:/Users/Admin/OneDrive/Documents/K5-L3A-DAY10-Nhom2nguoi-PoCtoPilotGate1/lab10/guards.py). Cổng chặn lệnh `issue_refund` ngay trước khi ghi vào sổ cái nếu `_approval_problem` trả về lỗi và chuyển ticket sang `escalate`.
+- **Bằng con số trong report:**
+  + Dòng `wrongful_refund_vnd` (tiền hoàn sai do mã không hợp lệ): giảm từ `6.845.000đ` (ở mốc base/prepared) về đúng `0đ` (ở mốc after).
+  + Dòng `wrongful_carrier_faults`: giảm từ `35` lỗi về `0` lỗi.
+  + Dòng `escalation_rate`: phản ánh tỉ lệ các ca nghi vấn/hết hạn/thiếu duyệt được chuyển sang cho người duyệt thủ công một cách an toàn.
 
 ### Câu 3.3 · Một giả định về môi trường mà người thiết kế đã ngầm tin, nhưng nhiều khả năng sai ngoài thực tế
 
-Giả định (thứ nằm NGOÀI phần mềm): …
+Giả định (thứ nằm NGOÀI phần mềm):
+Người thiết kế ngầm tin rằng: **"Mọi mã phê duyệt (`approval_id`) từng được tạo ra bởi Trưởng ca trong quá khứ liên quan tới khách hàng hay đơn hàng đó thì luôn giữ nguyên hiệu lực và có thể tái sử dụng cho các ticket sau; đồng thời nhân viên CSKH và Trưởng ca sẽ tiếp tục tin tưởng và phối hợp xử lý dù hệ thống thỉnh thoảng có lấy nhầm mã."**
 
-Vì sao có thể sai: …
+Vì sao có thể sai:
+1. **Về quy chế phân quyền và kiểm toán tài chính:** Ngoài đời thực, phê duyệt ngoại lệ của con người luôn mang tính hữu hạn và gắn chặt với trách nhiệm pháp lý cá nhân. Trưởng ca duyệt một khoản chi cụ thể cho một ticket cụ thể (`ticket_id`), trong một thời hạn nhất định (`expires_at`), hoặc có thể chủ động thu hồi (`status == 'revoked'`) khi khách đổi ý. Mã duyệt không bao giờ là một "tấm séc khống vô thời hạn" để AI muốn dùng lúc nào hay chi bao nhiêu tùy ý.
+2. **Về trần hạn mức trách nhiệm:** Người duyệt chỉ được ủy quyền ký duyệt trong hạn mức trần (`max_vnd`, ví dụ duyệt tối đa 150.000đ). Khi AI tự ý chi 235.000đ, Trưởng ca đứng tên trên hồ sơ kiểm toán phải tự bỏ tiền túi đền hoặc chịu kỷ luật nội bộ.
+3. **Về tâm lý con người trong vận hành (Hiệu chỉnh lòng tin):** Trái với giả định nhân viên sẽ lặng lẽ sửa sai cho máy, khi người đứng tên bị kiểm toán quy trách nhiệm vì bị "mạo danh phê duyệt", lòng tin sẽ sụp đổ ngay lập tức. Nhân viên sẽ tự vệ bằng cách chuyển sang chế độ kiểm tay 100% mọi ca (`review_rate = 1.0`), dẫn đến hàng chờ tê liệt, thời gian chờ vượt trần (216 phút > 60 phút) và chi phí vận hành tăng vọt, phá vỡ toàn bộ giá trị kinh tế của việc tự động hóa.
 
 ---
 
